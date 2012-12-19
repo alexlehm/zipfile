@@ -9,12 +9,16 @@ to include support for jars as well as normal classpath (when running inside ecl
 the following code can be used:
 
     protected List<String> storyPaths() {
-        final URL codeLocation = codeLocationFromClass(this.getClass());
+        URL codeLocation = codeLocationFromClass(this.getClass());
         if(new File(codeLocation.getFile()).isDirectory()) {
             return new StoryFinder().findPaths(codeLocation, "**/*.story",
                     "**/excluded*.story");
         } else {
             try {
+                // the jar name has a ! at the end
+                if(codeLocation.toString().endsWith("!")) {
+                    codeLocation=new URL(StringUtils.removeEnd(codeLocation.toString(),"!"));
+                }
                 return JarFileScanner.scanJar(codeLocation, "**/*.story",
                         "**/excluded*.story");
             } catch (IOException e) {
